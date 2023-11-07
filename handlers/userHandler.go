@@ -86,6 +86,7 @@ func SignIn(c *fiber.Ctx) error {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub":  user.ID,
 		"name": user.FirstName + " " + user.LastName,
+		"iat":  time.Now().Unix(),
 		"exp":  time.Now().Add(time.Hour * 24 * 3).Unix(),
 	})
 
