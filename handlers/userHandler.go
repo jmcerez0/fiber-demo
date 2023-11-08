@@ -111,8 +111,10 @@ func SignIn(c *fiber.Ctx) error {
 }
 
 func GetAllUsers(c *fiber.Ctx) error {
-	var users models.User
+	var users []models.User
 	utils.DB.Find(&users)
 
-	return c.Status(fiber.StatusOK).JSON(users)
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"users": users,
+	})
 }
