@@ -43,9 +43,13 @@ func SignUp(c *fiber.Ctx) error {
 
 	if result.Error != nil {
 		if strings.Contains(result.Error.Error(), "Error 1062 (23000)") {
-			return c.Status(fiber.StatusConflict).JSON(result.Error.Error())
+			return c.Status(fiber.StatusConflict).JSON(fiber.Map{
+				"message": result.Error.Error(),
+			})
 		} else {
-			return c.Status(fiber.StatusInternalServerError).JSON(result.Error.Error())
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"message": result.Error.Error(),
+			})
 		}
 	}
 
