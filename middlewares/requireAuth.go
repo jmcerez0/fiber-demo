@@ -10,7 +10,7 @@ import (
 	"github.com/jmcerez0/fiber-demo/utils"
 )
 
-func ValidateToken(c *fiber.Ctx) error {
+func RequireAuth(c *fiber.Ctx) error {
 	tokenString := c.Cookies("token")
 
 	if tokenString == "" {

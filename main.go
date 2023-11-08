@@ -27,7 +27,7 @@ func main() {
 
 	app.Post("/signin", handlers.SignIn)
 
-	app.Get("/users", middlewares.ValidateToken, handlers.GetAllUsers)
+	app.Get("/users", middlewares.RequireAuth, handlers.GetAllUsers)
 
 	app.Listen(":" + os.Getenv("PORT"))
 }
