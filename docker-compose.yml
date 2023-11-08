@@ -1,0 +1,22 @@
+version: "3.8"
+services:
+  mysql-db:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: randompassword
+      MYSQL_DATABASE: fiber_demo
+    volumes:
+      - mysql-db:/var/lib/mysql
+  api:
+    build: .
+    restart: on-failure:3
+    depends_on:
+      - mysql-db
+    ports:
+      - 3006:3000
+    environment:
+      DATABASE_URL: root:randompassword@tcp(mysql-db:3306)/fiber_demo?charset=utf8mb4&parseTime=True&loc=Local
+      PORT: 3000
+volumes:
+  mysql-db: {}
