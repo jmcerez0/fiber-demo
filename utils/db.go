@@ -21,6 +21,9 @@ func CreateDB() {
 	}
 
 	db.Exec("CREATE DATABASE IF NOT EXISTS fiber_demo")
+
+	DB, _ := db.DB()
+	DB.Close()
 }
 
 func ConnectToDB() {
