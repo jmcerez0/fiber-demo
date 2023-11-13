@@ -23,13 +23,17 @@ func SignUp(c *fiber.Ctx) error {
 	u := new(User)
 
 	if err := c.BodyParser(u); err != nil {
-		return err
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": err.Error(),
+		})
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), 10)
 
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": err.Error(),
+		})
 	}
 
 	user := models.User{
@@ -67,7 +71,9 @@ func SignIn(c *fiber.Ctx) error {
 	u := new(User)
 
 	if err := c.BodyParser(u); err != nil {
-		return err
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": err.Error(),
+		})
 	}
 
 	var user models.User
