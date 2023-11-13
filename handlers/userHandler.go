@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-playground/validator"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jmcerez0/fiber-demo/models"
@@ -12,17 +13,25 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+var validate = validator.New()
+
 func SignUp(c *fiber.Ctx) error {
 	type User struct {
-		FirstName string `json:"first_name" xml:"first_name" form:"first_name"`
-		LastName  string `json:"last_name" xml:"last_name" form:"last_name"`
-		Email     string `json:"email" xml:"email" form:"email"`
-		Password  string `json:"password" xml:"password" form:"password"`
+		FirstName string `json:"first_name" xml:"first_name" form:"first_name" validate:"required"`
+		LastName  string `json:"last_name" xml:"last_name" form:"last_name" validate:"required"`
+		Email     string `json:"email" xml:"email" form:"email" validate:"required,email"`
+		Password  string `json:"password" xml:"password" form:"password" validate:"required"`
 	}
 
 	u := new(User)
 
 	if err := c.BodyParser(u); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
+
+	if err := validate.Struct(u); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": err.Error(),
 		})
@@ -64,13 +73,19 @@ func SignUp(c *fiber.Ctx) error {
 
 func SignIn(c *fiber.Ctx) error {
 	type User struct {
-		Email    string `json:"email" xml:"email" form:"email"`
-		Password string `json:"password" xml:"password" form:"password"`
+		Email    string `json:"email" xml:"email" form:"email" validate:"required,email"`
+		Password string `json:"password" xml:"password" form:"password" validate:"required"`
 	}
 
 	u := new(User)
 
 	if err := c.BodyParser(u); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"message": err.Error(),
+		})
+	}
+
+	if err := validate.Struct(u); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": err.Error(),
 		})
