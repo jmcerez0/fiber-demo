@@ -20,7 +20,7 @@ func SignUp(c *fiber.Ctx) error {
 		FirstName string `json:"first_name" xml:"first_name" form:"first_name" validate:"required"`
 		LastName  string `json:"last_name" xml:"last_name" form:"last_name" validate:"required"`
 		Email     string `json:"email" xml:"email" form:"email" validate:"required,email"`
-		Password  string `json:"password" xml:"password" form:"password" validate:"required"`
+		Password  string `json:"password" xml:"password" form:"password" validate:"required,min=8"`
 	}
 
 	u := new(User)
