@@ -1,16 +1,13 @@
 package handlers
 
 import (
-	"os"
 	"strings"
 	"time"
 
 	"github.com/go-playground/validator"
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/jmcerez0/fiber-demo/models"
 	"github.com/jmcerez0/fiber-demo/utils"
-	"golang.org/x/crypto/bcrypt"
 )
 
 var validate = validator.New()
@@ -37,7 +34,7 @@ func SignUp(c *fiber.Ctx) error {
 		})
 	}
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(u.Password), 10)
+	hashedPassword, err := utils.HashPassword(u.Password)
 
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -49,7 +46,7 @@ func SignUp(c *fiber.Ctx) error {
 		FirstName: u.FirstName,
 		LastName:  u.LastName,
 		Email:     u.Email,
-		Password:  string(hash),
+		Password:  hashedPassword,
 	}
 
 	result := utils.DB.Create(&user)
@@ -100,22 +97,13 @@ func SignIn(c *fiber.Ctx) error {
 		})
 	}
 
-	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(u.Password))
-
-	if err != nil {
+	if err := utils.ComparePassword(user.Password, u.Password); err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"message": "Incorrect email or password.",
 		})
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub":  user.ID,
-		"name": user.FirstName + " " + user.LastName,
-		"iat":  time.Now().Unix(),
-		"exp":  time.Now().Add(time.Hour * 24 * 3).Unix(),
-	})
-
-	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	token, err := utils.GetToken(user)
 
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -125,13 +113,13 @@ func SignIn(c *fiber.Ctx) error {
 
 	c.Cookie(&fiber.Cookie{
 		Name:     "token",
-		Value:    tokenString,
+		Value:    token,
 		Expires:  time.Now().Add(time.Hour * 24 * 3),
 		HTTPOnly: true,
 	})
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"token": tokenString,
+		"token": token,
 	})
 }
 
