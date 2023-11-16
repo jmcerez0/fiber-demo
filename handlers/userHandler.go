@@ -107,7 +107,7 @@ func SignIn(c *fiber.Ctx) error {
 
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"message": "Incorrect email or password.",
+			"message": err.Error(),
 		})
 	}
 
